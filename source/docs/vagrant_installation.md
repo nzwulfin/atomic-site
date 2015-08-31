@@ -21,6 +21,10 @@ At the end of this guide, you will have:
 
 ## Installing with vagrant
 
+* If you are familiar with Vagrant, you can skip ahead to the [advanced Vagrantfile setup](#advanced-vagrant-configuration) section of the document.  
+
+* If you haven't worked with Vagrant much, keep reading to walk through the steps to get the box and launch your first Atomic host.
+
 ### Download the Vagrant box
 
 The [Fedora](https://getfedora.org/cloud/download/atomic.html) and [CentOS](http://cloud.centos.org/centos/7/atomic/images/) projects publish Vagrant boxes for different virtualization platforms.  Download the Atomic host of your choice that matches the virtualization environment you have locally.  This guide was written using the Fedora image for libvirt/KVM.
@@ -49,6 +53,39 @@ Vagrant.configure(2) do |config|
   config.vm.box = "Fed22Atomic"
 end
 ```
+### Advanced Vagrant configuration
+Vagrantfile configurations are very powerful.  For example the following example will allow you to skip the download and add steps above, as well as supporting multiple providers and multiple boxes.  The type of box is set as an environment variable which can be set at invocation time.  You can also change providers with the command line switch if you are running multiple providers on the same local machine.
+
+```
+# -*- mode: ruby -*-
+
+$distro_type = ENV['DISTRO_TYPE'] || 'fedora-atomic'
+
+Vagrant.configure(2) do |config|
+  config.vm.provider "virtualbox" do |vbox, override|
+    if $distro_type === "centos-atomic"
+      override.vm.box = "centos-atomic"
+      override.vm.box_url = "https://ci.centos.org/artifacts/sig-atomic/downstream/images/centos-atomic-host-7-vagrant-virtualbox.box"
+    end
+    if $distro_type === "fedora-atomic"
+      override.vm.box = "fedora-atomic"
+      override.vm.box_url = "https://download.fedoraproject.org/pub/fedora/linux/releases/22/Cloud/x86_64/Images/Fedora-Cloud-Atomic-Vagrant-22-20150521.x86_64.vagrant-virtualbox.box"
+    end
+  end
+  config.vm.provider "libvirt" do |libvirt, override|
+    if $distro_type === "centos-atomic"
+      override.vm.box = "centos-atomic"
+      override.vm.box_url = "https://ci.centos.org/artifacts/sig-atomic/downstream/images/centos-atomic-host-7-vagrant-libvirt.box"
+    end
+    if $distro_type === "fedora-atomic"
+      override.vm.box = "fedora-atomic"
+      override.vm.box_url = "https://download.fedoraproject.org/pub/fedora/linux/releases/22/Cloud/x86_64/Images/Fedora-Cloud-Atomic-Vagrant-22-20150521.x86_64.vagrant-libvirt.box"
+    end
+  end
+end
+```
+
+We maintain a [complex Vagrantfile](http://pa.io/has/an/example/somewhere) that you can use for your projects.
 
 ### Launch the Atomic host
 Now we're ready to launch our Atomic host.  Still in the working directory, we can run and connect to the Atomic host.  

@@ -65,10 +65,6 @@ Create a named container from the Docker Hub registry image, exposing the standa
     -e STORAGE_PATH=/srv/registry \
     --name=local-registry registry
 
-We need to change the SELinux context on the directory that docker created for our persistence volume.
-
-    [fedora@atomic-master ~]$ sudo chcon -Rvt svirt_sandbox_file_t /var/lib/local-registry
-
 Since we want to make sure the local cache is always up, we'll create a systemd unit file to start it and make sure it stays running.  Reload the systemd daemon and start the new local-registry service.
 
     [fedora@atomic-master ~]$ sudo vi /etc/systemd/system/local-registry.service
@@ -91,11 +87,11 @@ Since we want to make sure the local cache is always up, we'll create a systemd 
     [fedora@atomic-master ~]$ sudo systemctl start local-registry
 
 ### Configuring Kubernetes master
-We're using a single etcd server, not a replicating cluster in this guide.  This makes etcd simple, we just need to listen for client connections, then enable and start the daemon with all the rest of the Kubernetes services.  For simplicity, we'll have etcd listen on all IP addresses.  The official port for etcd clients is 2379, but we'll add 4001 as well since that was widely used in guides to this point.
+We're using a single etcd server, not a mult-master cluster in this guide.  This makes etcd simple, we just need to listen for client connections, then enable and start the daemon with all the rest of the Kubernetes services.  For simplicity, we'll have etcd listen on all IP addresses, you could instead add the IP address of the main interface.  By default, etcd is configured to listen on `localhost`.
 
     [fedora@atomic-master ~]$ sudo vi /etc/etcd/etcd.conf
-    ETCD_LISTEN_CLIENT_URLS="http://0.0.0.0:2379,http://0.0.0.0:4001"
-    ETCD_ADVERTISE_CLIENT_URLS="http://0.0.0.0:2379,http://0.0.0.0:4001"
+    ETCD_LISTEN_CLIENT_URLS="http://0.0.0.0:2379"
+    ETCD_ADVERTISE_CLIENT_URLS="http://0.0.0.0:2379"
 
 For Kubernetes, there's a few config files in /etc/kubernetes we need to set up for this host to act as a master.  First off is the general config file used by all of the services.  Then we'll add service specific variables to those service config files.
 
@@ -110,9 +106,6 @@ For Kubernetes, there's a few config files in /etc/kubernetes we need to set up 
 We'll be setting up the etcd store that Kubernetes will use.  We're using a single local etcd service, so we'll point that at the master on the standard port.  We'll also set up how the services find the apiserver.
 
     [fedora@atomic-master ~]$ sudo vi /etc/kubernetes/config
-    # Comma seperated list of nodes in the etcd cluster
-    KUBE_ETCD_SERVERS="--etcd_servers=http://192.168.122.10:2379"
-
     # How the replication controller and scheduler find the kube-apiserver
     KUBE_MASTER="--master=http://192.168.122.10:8080"
 
@@ -120,26 +113,17 @@ We'll be setting up the etcd store that Kubernetes will use.  We're using a sing
 The apiserver needs to be set to listen on all IP addresses, instead of just localhost.
 
     [fedora@atomic-master ~]$ sudo vi /etc/kubernetes/apiserver
-    # The address on the local server to listen to.
-    KUBE_API_ADDRESS="--address=0.0.0.0"
+    # Comma seperated list of nodes in the etcd cluster
+    KUBE_ETCD_SERVERS="--etcd_servers=http://192.168.122.10:2379"
 
 If you follow this guide on a test cluster, you will also need to remove `ServiceAccount` from the `KUBE_ADMISSION_CONTROL` parameter. The complete line will look like:
 
     KUBE_ADMISSION_CONTROL="--admission_control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ResourceQuota"
 
-
-
  If you need to modify the set of IPs that Kubernetes assigns to services, change the KUBE_SERVICE_ADDRESSES value. Since this guide is using the 192.168.122.0/24 and 172.16.0.0/12 networks, we can leave the default.  This address space needs to be unused elsewhere, but doesn't need to be reachable from either of the other networks.
 
     # Address range to use for services
     KUBE_SERVICE_ADDRESSES="--portal_net=10.254.0.0/16"
-
-#### Controller Manager service configuration
-The controller manager service needs to how to locate it's nodes.  We're using IPs as addresses, which must match the KUBLET_HOSTNAME for the nodes kublet service. If hostnames are used, must resolve to match output of `hostname -f` on the node.
-
-    [fedora@atomic-master ~]$ sudo vi /etc/kubernetes/controller-manager
-    # Comma seperated list of nodes
-    KUBELET_ADDRESSES="--machines=192.168.122.11,192.168.122.12,192.168.122.13,192.168.122.14"
 
 Enable and start the Kubernetes services.
 
@@ -227,11 +211,11 @@ Using a systemd drop-in file allows us to override the distributed systemd unit 
 
 ### Configuring Kubernetes nodes
 
-The address entry in the kubelet config file must match the KUBLET_ADDRESSES entry on the master.   If hostnames are used, this also must match output of `hostname -f` on the node.  We're using the eth0 IP address like we did on the master.
+ If DNS is used in the environment, IP lookups for the nodes must match output of `hostname` on the node.  You can also force the lookup of nodes via IP address with the `hostname_override` option as below.
 
     [fedora@atomic01 ~]$ sudo vi /etc/kubernetes/kubelet
     # The address for the info server to serve on (set to 0.0.0.0 or "" for all interfaces)
-    KUBELET_ADDRESS="--address=192.168.122.11"
+    KUBELET_ADDRESS=""
 
     # You may leave this blank to use the actual hostname
     KUBELET_HOSTNAME="--hostname_override=192.168.122.11"
@@ -258,7 +242,7 @@ Once all of your services are started, the networking should look something like
     [fedora@atomic01 ~]$ ip a
     2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc pfifo_fast state UP group default qlen 1000
         link/ether 0a:45:46:8d:6a:de brd ff:ff:ff:ff:ff:ff
-        inet 10.4.0.120/24 brd 10.4.0.255 scope global dynamic eth0
+        inet 192.168.122.11/24 brd 10.4.0.255 scope global dynamic eth0
            valid_lft 3570sec preferred_lft 3570sec
         inet6 fe80::845:46ff:fe8d:6ade/64 scope link
            valid_lft forever preferred_lft forever

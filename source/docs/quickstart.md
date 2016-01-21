@@ -11,7 +11,7 @@ We recommend reading the [Getting Started Guide](http://www.projectatomic.io/doc
 * **Note for VirtualBox users** We are not producing native VirtualBox images, but you can generate your own VirtualBox image from the qcow2 images with `qemu-img`:
 
 ````
-qemu-img convert -f qcow2 [filename].qcow2 -O vdi [filename].vdi
+$ qemu-img convert -f qcow2 [filename].qcow2 -O vdi [filename].vdi
 
 ````
 
@@ -36,7 +36,11 @@ You will need to create a metadata ISO to supply critical data when your Atomic 
         instance-id: atomic-host001
         local-hostname: atomic01.example.org
 
-2. Create a `user-data` file. The #cloud-config directive at the beginning of the file is mandatory, not a comment.  If you have multiple admins and ssh keys you'd like to access the default user, you can add a new `ssh-rsa` line.
+2. Create a `user-data` file.
+
+    **Note:** The #cloud-config directive at the beginning of the file is mandatory, not a comment.
+
+    If you have multiple admins and ssh keys you'd like to access the default user, you can add a new `ssh-rsa` line.
 
         $ vi user-data
         #cloud-config
@@ -59,7 +63,7 @@ We'll start with the QCOW2 format image for both virt-manager and VirtualBox.  F
 
 
 ````
-qemu-img convert -f qcow2 [filename].qcow2 -O vdi [filename].vdi
+$ qemu-img convert -f qcow2 [filename].qcow2 -O vdi [filename].vdi
 
 ````
 

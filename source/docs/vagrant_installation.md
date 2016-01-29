@@ -15,7 +15,7 @@ At the end of this guide, you will have:
 ### Used in this guide
 |  |  |
 |---|---|
-| Platform Host OS | Fedora 22 Workstation |
+| Platform Host OS | Fedora 23 Workstation |
 | Virtualization | Vagrant with libvirt provider |
 | Atomic Host OS | Fedora 22 Atomic v 22.75 |
 
@@ -25,34 +25,27 @@ At the end of this guide, you will have:
 
 * If you haven't worked with Vagrant much, keep reading to walk through the steps to get the box and launch your first Atomic host.
 
-### Download the Vagrant box
-
-The [Fedora](https://getfedora.org/cloud/download/atomic.html) and [CentOS](http://cloud.centos.org/centos/7/atomic/images/) projects publish Vagrant boxes for different virtualization platforms.  Download the Atomic host of your choice that matches the virtualization environment you have locally.  This guide was written using the Fedora image for libvirt/KVM.
-
-With a image locally available, we need to import it into vagrant before we can use it.
-
-```
-vagrant box add --name Fed22Atomic Fedora-Cloud-Atomic-Vagrant-22-20150521.x86_64.vagrant-libvirt.box
-```
-
-This command creates a new vagrant box that we can use to start virtual machines.  The `--name` option is how we refer to that image when we configure the the virtual machine.
+The [Fedora](https://atlas.hashicorp.com/fedora/boxes/23-atomic-host) and [CentOS](https://atlas.hashicorp.com/centos/boxes/atomic-host) projects publish Vagrant boxes on Atlas for different virtualization platforms.This guide was written using the Fedora image for libvirt/KVM.
 
 ### Set up the environment
 
 Vagrant boxes are created and managed on a per directory basis, so create a new working directory on your workstation to store the local vagrant config for the Atomic host.  The configuration file and the cache for this virtual machine will reside in the working directory.  
-
 ```
 mkdir ~/vagrant
 cd ~/vagrant
 ```
-The instructions for creating a box live in a Vagrantfile.  The Vagrantfile we're using here is extremely simple, just enough to get the machine running.  If you'd like to see more options, take a look at the [Vagrant docs](http://docs.vagrantup.com/v2/vagrantfile/).
+
+The instructions for creating a box live in a Vagrantfile.  The Vagrantfile we're using here is extremely simple, just enough to get the machine running.  The name of box in Atlas based on account and identifier the project used to publish the box.
+
+If you'd like to see more options, take a look at the [Vagrant docs](http://docs.vagrantup.com/v2/vagrantfile/).
 
 ```
 # -*- mode: ruby -*-
 Vagrant.configure(2) do |config|
-  config.vm.box = "Fed22Atomic"
+  config.vm.box = "fedora/23-atomic-host"
 end
 ```
+
 ### Advanced Vagrant configuration
 Vagrantfile configurations are very powerful.  For example the following example will allow you to skip the download and add steps above, as well as supporting multiple providers and multiple boxes.  The type of box is set as an environment variable which can be set at invocation time.  You can also change providers with the command line switch if you are running multiple providers on the same local machine.
 
@@ -88,7 +81,7 @@ end
 We maintain a [complex Vagrantfile](http://pa.io/has/an/example/somewhere) that you can use for your projects.
 
 ### Launch the Atomic host
-Now we're ready to launch our Atomic host.  Still in the working directory, we can run and connect to the Atomic host.  
+Once you have either of the Vagrantfiles in your local directory, we're ready to launch our Atomic host.  Still in the working directory, we can run and connect to the Atomic host.  
 
 To start the Atomic host, run:
 
@@ -119,10 +112,10 @@ As the vagrant user:
 
 ```
 [vagrant@localhost ~]$ sudo atomic host upgrade
-Updating from: fedora-atomic:fedora-atomic/f22/x86_64/docker-host
+Updating from: fedora-atomic:fedora-atomic/f23/x86_64/docker-host
 
-978 metadata, 6507 content objects fetched; 246854 KiB transferred in 165 seconds
-Copying /etc changes: 25 modified, 0 removed, 46 added
+735 metadata, 3275 content objects fetched; 164499 KiB transferred in 113 seconds
+Copying /etc changes: 22 modified, 0 removed, 43 added
 Transaction complete; bootconfig swap: yes deployment count change: 1
 ```
 

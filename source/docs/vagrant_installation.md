@@ -17,7 +17,7 @@ At the end of this guide, you will have:
 |---|---|
 | Platform Host OS | Fedora 23 Workstation |
 | Virtualization | Vagrant with libvirt provider |
-| Atomic Host OS | Fedora 22 Atomic v 22.75 |
+| Atomic Host OS | Fedora 23 Atomic v 23.45 |
 
 ## Installing with vagrant
 
@@ -25,15 +25,18 @@ At the end of this guide, you will have:
 
 * If you haven't worked with Vagrant much, keep reading to walk through the steps to get the box and launch your first Atomic host.
 
-The [Fedora](https://atlas.hashicorp.com/fedora/boxes/23-atomic-host) and [CentOS](https://atlas.hashicorp.com/centos/boxes/atomic-host) projects publish Vagrant boxes on Atlas for different virtualization platforms.This guide was written using the Fedora image for libvirt/KVM.
+The [Fedora](https://atlas.hashicorp.com/fedora/boxes/23-atomic-host) and [CentOS](https://atlas.hashicorp.com/centos/boxes/atomic-host) projects publish Vagrant boxes on Atlas for different virtualization platforms.This guide was written using the Fedora box for libvirt/KVM.
 
 ### Set up the environment
 
-Vagrant boxes are created and managed on a per directory basis, so create a new working directory on your workstation to store the local vagrant config for the Atomic host.  The configuration file and the cache for this virtual machine will reside in the working directory.  
+Vagrant boxes are created and managed on a per directory basis, so create a new working directory on your workstation to store the local vagrant config for the Atomic host.  The configuration file and the cache for this virtual machine will reside in the working directory.
+
 ```
 mkdir ~/vagrant
 cd ~/vagrant
 ```
+
+### Simple Vagrant configuration
 
 The instructions for creating a box live in a Vagrantfile.  The Vagrantfile we're using here is extremely simple, just enough to get the machine running.  The name of box in Atlas based on account and identifier the project used to publish the box.
 
@@ -47,35 +50,36 @@ end
 ```
 
 ### Advanced Vagrant configuration
-Vagrantfile configurations are very powerful.  For example the following example will allow you to skip the download and add steps above, as well as supporting multiple providers and multiple boxes.  The type of box is set as an environment variable which can be set at invocation time.  You can also change providers with the command line switch if you are running multiple providers on the same local machine.
+Vagrantfile configurations are very powerful.  The following example will create 4 Fedora 23 Atomic hosts, configure the virtual machines, and create an additional private network in libvirt.  
+
+You can not only control the creation of the virtual machine, you can aslo control the SSH and other operations of Vagrant for a particular set of hosts.  Here we're using the same ssh key for all of the virtual machines to simplify access.  Vagrant will use the ssh agent keyring for authentication, so you can add the Vagrant default key with ssh-add.
+
+```
+ssh-add -k ~/.vagrant.d/insecure_private_key
+```
 
 ```
 # -*- mode: ruby -*-
+# vi: set ft=ruby :
 
-$distro_type = ENV['DISTRO_TYPE'] || 'fedora-atomic'
+Vagrant.configure("2") do |config|
+  config.vm.box = "fedora/23-atomic-host"
+  config.ssh.forward_agent = true
+  config.ssh.insert_key = false
 
-Vagrant.configure(2) do |config|
-  config.vm.provider "virtualbox" do |vbox, override|
-    if $distro_type === "centos-atomic"
-      override.vm.box = "centos-atomic"
-      override.vm.box_url = "https://ci.centos.org/artifacts/sig-atomic/downstream/images/centos-atomic-host-7-vagrant-virtualbox.box"
-    end
-    if $distro_type === "fedora-atomic"
-      override.vm.box = "fedora-atomic"
-      override.vm.box_url = "https://download.fedoraproject.org/pub/fedora/linux/releases/22/Cloud/x86_64/Images/Fedora-Cloud-Atomic-Vagrant-22-20150521.x86_64.vagrant-virtualbox.box"
-    end
-  end
-  config.vm.provider "libvirt" do |libvirt, override|
-    if $distro_type === "centos-atomic"
-      override.vm.box = "centos-atomic"
-      override.vm.box_url = "https://ci.centos.org/artifacts/sig-atomic/downstream/images/centos-atomic-host-7-vagrant-libvirt.box"
-    end
-    if $distro_type === "fedora-atomic"
-      override.vm.box = "fedora-atomic"
-      override.vm.box_url = "https://download.fedoraproject.org/pub/fedora/linux/releases/22/Cloud/x86_64/Images/Fedora-Cloud-Atomic-Vagrant-22-20150521.x86_64.vagrant-libvirt.box"
-    end
-  end
-end
+  (1..4).each do |i|
+    config.vm.define vm_name = "f23-atomic-#{i}" do |host|
+      host.vm.hostname = vm_name
+      host.vm.provider :libvirt do |domain|
+        domain.memory = 2048
+        domain.cpus = 2
+      end #provider info
+      ip = "172.21.12.#{i+100}"
+      host.vm.network :private_network, :libvirt__network_name => "storage", :ip => ip
+    end #host info
+  end #each loop
+end #config info
+
 ```
 
 We maintain a [complex Vagrantfile](http://pa.io/has/an/example/somewhere) that you can use for your projects.
@@ -103,7 +107,7 @@ Vagrant will have created a user `vagrant` with an ssh key and sudo privileges o
 You can reconnect with `vagrant ssh`, stop the VM with `vagrant halt`, or terminate the VM with `vagrant destroy`.
 
 ## Next steps
-With an Atomic host up and running as a virtual machine, let's take a look at a few typical things we'd do.
+With an Atomic host up and running as a virtual machine, let's take a look at a few typical things we'd do.  Or head over to the [Getting Started Guide](http://www.projectatomic.io/docs/gettingstarted/) and set up a new cluster.
 
 ### Update your Atomic host
 First of all, it's a good practice to always update your Atomic host.  The nature of updates via `rpm-ostree` means that you can easily roll back from OS updates should a problem be discovered.

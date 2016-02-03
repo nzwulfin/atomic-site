@@ -38,21 +38,18 @@ cd ~/vagrant
 
 ### Simple Vagrant configuration
 
-The instructions for creating a box live in a Vagrantfile.  The Vagrantfile we're using here is extremely simple, just enough to get the machine running.  The name of box in Atlas based on account and identifier the project used to publish the box.
-
-If you'd like to see more options, take a look at the [Vagrant docs](http://docs.vagrantup.com/v2/vagrantfile/).
+The instructions for creating a box live in a Vagrantfile.  The `vagrant init` command will generate a simple templated Vagrantfile for you.  The name of box in Atlas based on account and identifier the project used to publish the box.
 
 ```
-# -*- mode: ruby -*-
-Vagrant.configure(2) do |config|
-  config.vm.box = "fedora/23-atomic-host"
-end
+vagrant init fedora/23-atomic-host
 ```
 
 ### Advanced Vagrant configuration
 Vagrantfile configurations are very powerful.  The following example will create 4 Fedora 23 Atomic hosts, configure the virtual machines, and create an additional private network in libvirt.  
 
 You can not only control the creation of the virtual machine, you can aslo control the SSH and other operations of Vagrant for a particular set of hosts.  Here we're using the same ssh key for all of the virtual machines to simplify access.  Vagrant will use the ssh agent keyring for authentication, so you can add the Vagrant default key with ssh-add.
+
+If you'd like to see more options, take a look at the [Vagrant docs](http://docs.vagrantup.com/v2/vagrantfile/).
 
 ```
 ssh-add -k ~/.vagrant.d/insecure_private_key

@@ -3,11 +3,13 @@
 source 'http://rubygems.org'
 source 'https://rails-assets.org'
 
-gem "middleman", "~> 3.3.3"
+#gem "middleman", "~> 3.3.13"
+gem "middleman"
 
 # In order to get SASS 3.3, compass 1.0 is needed
 # FIXME: Remove this once 1.0 is final (very, very soon now -- next week?)
-gem 'compass', '~> 1.0.0.alpha.21'
+#gem 'compass', '~> 1.0.0.alpha.21'
+gem 'compass'
 
 # Live-reloading plugin
 gem "middleman-livereload"

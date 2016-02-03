@@ -197,11 +197,11 @@ DEPENDENCIES
   bootstrap-sass (= 3.0.0.0)
   builder (~> 3.0)
   coderay
-  compass (~> 1.0.0.alpha.21)
+  compass 
   feedjira
   font-awesome-middleman
   less
-  middleman (~> 3.3.3)
+  middleman
   middleman-blog
   middleman-deploy
   middleman-favicon-maker

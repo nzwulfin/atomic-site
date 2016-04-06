@@ -1,6 +1,6 @@
 # If you have OpenSSL installed, we recommend updating
 # the following line to use "https"
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 source 'https://rails-assets.org'
 
 #gem "middleman", "~> 3.3.13"
@@ -94,3 +94,7 @@ gem 'open-uri-cached'
 
 # RSS/Atom parsing
 gem "feedjira"
+
+gem "launchy"
+gem "slop"
+gem "chronic"

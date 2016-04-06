@@ -1,0 +1,9 @@
+[[managing-containers]]
+Managing Containers
+-------------------
+
+http://kubernetes.io/[Kubernetes] is the command-line interface to
+managing containers. You can
+https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/overview.md[find
+more] information and detailed documentation about Kubernetes from the
+various project pages.

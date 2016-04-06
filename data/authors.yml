@@ -60,7 +60,7 @@ mmicene:
 
 bhosmer:
   name: Ben Hosmer
-  twiiter: bhosmer
+  twitter: bhosmer
   gravatar: 1062144ebb11d19f08c4e2f04e9aba26
   description: Drupal Developer and SysAdmin at RadiantBlue Technologies.
 
@@ -84,8 +84,9 @@ jeder:
   twitter: jeremyeder
   description: Jeremy Eder is a  Principal Software Engineer, Network and Container Performance Lead at Red Hat. Jeremy specializes in measurement and analysis of kernel-related performance metrics, and using that analysis to guide performance-tuning of real-world infrastructure.
 
-ttomecek: 
+ttomecek:
   name: Tomáš Tomeček
+  gravatar: 86a332a848dc6260af0575f55ce1f499
 
 miabbott:
   name: Micah Abbott
@@ -115,3 +116,13 @@ baude:
 nshaikh:
   name: Navid Shaikh
   twitter: swordphilic
+
+jberkus:
+  name: Josh Berkus
+  twitter: fuzzychef
+
+jlebon:
+  name: Jonathan Lebon
+
+mrunalp:
+  name: Mrunal Patel

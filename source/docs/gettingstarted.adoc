@@ -1,3 +1,5 @@
+---
+---
 [[project-atomic-getting-started-guide]]
 Project Atomic Getting Started Guide
 ------------------------------------
@@ -181,13 +183,11 @@ set up for this host to act as a master. First off is the general config
 file used by all of the services. Then we'll add service specific
 variables to those service config files.
 
-----------------------
-Services
-    config
-    apiserver
-    controller-manager
-    scheduler
-----------------------
+.Services
+- config
+- apiserver
+- controller-manager
+- scheduler
 
 [[common-service-configurations]]
 Common service configurations

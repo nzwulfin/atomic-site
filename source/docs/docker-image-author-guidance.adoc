@@ -1,3 +1,5 @@
+---
+---
 [[guidance-for-docker-image-authors]]
 Guidance for Docker Image Authors
 ---------------------------------

@@ -1,3 +1,5 @@
+---
+---
 [[performing-a-bare-metal-installation-of-fedora-atomic]]
 Performing a Bare Metal Installation of Fedora Atomic
 -----------------------------------------------------
